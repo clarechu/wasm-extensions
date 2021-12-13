@@ -115,7 +115,7 @@ void PluginRootContext::addLogEntry(PluginContext* stream) {
 
   // Add log labels. Note the following logic assumes this extension
   // is running at a server sidecar.
-  getRequestHeaderSize()
+  getRequestHeaderSize();
   // Workload attributes.
   getValue({"source", "address"}, new_entry->mutable_source_address());
   getValue({"destination", "address"},
