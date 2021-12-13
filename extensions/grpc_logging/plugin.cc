@@ -126,9 +126,9 @@ void PluginRootContext::addLogEntry(PluginContext *stream) {
     // Request attributes.
     int64_t response_code, timestamp, duration;
     std::string_view request_body;
-/*    getValue({"request", "body"}, &request_body);
+    getValue({"request"}, &request_body);
     LOG_WARN(
-            absl::StrCat("parse request body plugin configuration JSON string ", request_body));*/
+            absl::StrCat("parse request plugin configuration JSON string ", request_body));
     getValue({"request", "time"}, &timestamp);
     getValue({"request", "duration"}, &duration);
     getValue({"request", "id"}, new_entry->mutable_request_id());
@@ -182,8 +182,6 @@ void PluginRootContext::sendLogRequest(bool ondone) {
 WasmResult PluginRootContext::httpCall(std::string_view uri, const HeaderStringPairs &request_headers,
                                        std::string_view request_body, const HeaderStringPairs &request_trailers,
                                        uint32_t timeout_milliseconds, ContextBase::HttpCallCallback callback) {
-    LOG_WARN(
-            absl::StrCat("parse request body plugin configuration JSON string ", request_body));
     return RootContext::httpCall(uri, request_headers, request_body, request_trailers, timeout_milliseconds, callback);
 }
 
