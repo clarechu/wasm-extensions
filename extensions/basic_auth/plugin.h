@@ -28,7 +28,12 @@ class PluginRootContext : public RootContext {
   PluginRootContext(uint32_t id, std::string_view root_id)
       : RootContext(id, root_id) {}
   ~PluginRootContext() {}
+
   bool onConfigure(size_t) override;
+
+    WasmResult httpCall(std::string_view uri, const HeaderStringPairs &request_headers,
+                        std::string_view request_body, const HeaderStringPairs &request_trailers,
+                        uint32_t timeout_milliseconds, HttpCallCallback callback);
 
   // check() handles the retrieval of certain headers (path,
   // method and authorization) from the HTTP Request Header in order to compare

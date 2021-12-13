@@ -31,6 +31,9 @@ bool PluginRootContext::onConfigure(size_t configuration_size) {
   json_options.ignore_unknown_fields = true;
   PluginConfig config;
   Status status = JsonStringToMessage(configuration, &config, json_options);
+  LOG_WARN(
+            absl::StrCat("parse logging plugin configuration JSON string ",
+                         configuration, ", ", status.message().ToString()));
   if (!status.ok()) {
     LOG_WARN(
         absl::StrCat("cannot parse logging plugin configuration JSON string ",
@@ -112,7 +115,7 @@ void PluginRootContext::addLogEntry(PluginContext* stream) {
 
   // Add log labels. Note the following logic assumes this extension
   // is running at a server sidecar.
-
+  getRequestHeaderSize()
   // Workload attributes.
   getValue({"source", "address"}, new_entry->mutable_source_address());
   getValue({"destination", "address"},
@@ -121,7 +124,6 @@ void PluginRootContext::addLogEntry(PluginContext* stream) {
            new_entry->mutable_destination_workload());
   getValue({"node", "metadata", "NAMESPACE"},
            new_entry->mutable_destination_namespace());
-
   // Request attributes.
   int64_t response_code, timestamp, duration;
   getValue({"request", "time"}, &timestamp);
@@ -172,6 +174,12 @@ void PluginRootContext::sendLogRequest(bool ondone) {
     }
     in_flight_export_call_ += 1;
   }
+}
+
+WasmResult PluginRootContext::httpCall(std::string_view uri, const HeaderStringPairs &request_headers,
+                                       std::string_view request_body, const HeaderStringPairs &request_trailers,
+                                       uint32_t timeout_milliseconds, ContextBase::HttpCallCallback callback) {
+    return RootContext::httpCall(uri, request_headers, request_body, request_trailers, timeout_milliseconds, callback);
 }
 
 void PluginContext::onLog() { rootContext()->addLogEntry(this); }

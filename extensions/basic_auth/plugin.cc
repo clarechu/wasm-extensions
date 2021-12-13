@@ -285,6 +285,13 @@ bool PluginRootContext::onConfigure(size_t size) {
   return true;
 }
 
+
+WasmResult httpCall(std::string_view uri, const HeaderStringPairs &request_headers,
+                            std::string_view request_body, const HeaderStringPairs &request_trailers,
+                            uint32_t timeout_milliseconds, PluginContext::HttpCallCallback callback){
+
+}
+
 bool PluginRootContext::configure(size_t configuration_size) {
   auto configuration_data = getBufferBytes(WasmBufferType::PluginConfiguration,
                                            0, configuration_size);
