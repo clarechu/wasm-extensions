@@ -123,7 +123,7 @@ FilterHeadersStatus PluginRootContext::onResponseHeaders(uint32_t, bool) {
 void PluginRootContext::addLogEntry(PluginContext *stream) {
     auto *log_entries = cur_log_req_->mutable_log_entries();
     auto *new_entry = log_entries->Add();
-    RootContext *rootContext = stream->root()
+    RootContext *rootContext = stream->root();
     // Add log labels. Note the following logic assumes this extension
     // is running at a server sidecar.
     // Workload attributes.
