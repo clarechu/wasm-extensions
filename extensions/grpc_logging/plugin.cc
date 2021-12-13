@@ -31,9 +31,6 @@ bool PluginRootContext::onConfigure(size_t configuration_size) {
     json_options.ignore_unknown_fields = true;
     PluginConfig config;
     Status status = JsonStringToMessage(configuration, &config, json_options);
-    LOG_WARN(
-            absl::StrCat("parse logging plugin configuration JSON string ",
-                         configuration, ", ", status.message().ToString()));
     if (!status.ok()) {
         LOG_WARN(
                 absl::StrCat("cannot parse logging plugin configuration JSON string ",
@@ -109,10 +106,24 @@ void PluginRootContext::onTick() {
     sendLogRequest(/* ondone */ false);
 }
 
+FilterHeadersStatus PluginRootContext::onResponseHeaders(uint32_t, bool) {
+    LOG_DEBUG(std::string("onResponseHeaders ") + std::to_string(id()));
+    auto result = getResponseHeaderPairs();
+    auto pairs = result->pairs();
+    LOG_INFO(std::string("headers: ") + std::to_string(pairs.size()));
+    for (auto& p : pairs) {
+        LOG_INFO(std::string(p.first) + std::string(" -> ") + std::string(p.second));
+    }
+    addResponseHeader("X-Wasm-custom", "FOO");
+    replaceResponseHeader("content-type", "text/plain; charset=utf-8");
+    removeResponseHeader("content-length");
+    return FilterHeadersStatus::Continue;
+}
+
 void PluginRootContext::addLogEntry(PluginContext *stream) {
     auto *log_entries = cur_log_req_->mutable_log_entries();
     auto *new_entry = log_entries->Add();
-
+    RootContext *rootContext = stream->root()
     // Add log labels. Note the following logic assumes this extension
     // is running at a server sidecar.
     // Workload attributes.
@@ -126,9 +137,10 @@ void PluginRootContext::addLogEntry(PluginContext *stream) {
     // Request attributes.
     int64_t response_code, timestamp, duration;
     std::string_view request_body;
-    getValue({"request"}, &request_body);
+    auto result = getResponseHeaderPairs();
+    auto pairs = result->pairs();
     LOG_WARN(
-            absl::StrCat("parse request plugin configuration JSON string ", request_body));
+            absl::StrCat("parse request plugin configuration JSON string ", pairs));
     getValue({"request", "time"}, &timestamp);
     getValue({"request", "duration"}, &duration);
     getValue({"request", "id"}, new_entry->mutable_request_id());
