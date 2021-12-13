@@ -17,7 +17,9 @@ class PluginRootContext : public RootContext {
   void addLogEntry(PluginContext *stream_context);
   void flushLogBuffer();
   void sendLogRequest(bool ondone);
-  FilterHeadersStatus  onResponseHeaders(uint32_t, bool);
+  FilterDataStatus  onRequestBody(size_t body_buffer_length,
+    bool /* end_of_stream */) override;
+  FilterHeadersStatus  onResponseHeaders(uint32_t, bool) override;
   WasmResult httpCall(std::string_view uri, const HeaderStringPairs &request_headers,
                         std::string_view request_body, const HeaderStringPairs &request_trailers,
                         uint32_t timeout_milliseconds, HttpCallCallback callback);

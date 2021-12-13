@@ -120,10 +120,18 @@ FilterHeadersStatus PluginRootContext::onResponseHeaders(uint32_t, bool) {
     return FilterHeadersStatus::Continue;
 }
 
+FilterDataStatus PluginRootContext::onRequestBody(size_t body_buffer_length,
+                                               bool /* end_of_stream */) {
+    auto body = getBufferBytes(WasmBufferType::HttpRequestBody, 0, body_buffer_length);
+    LOG_ERROR(std::string("onRequestBody ") + std::string(body->view()));
+    return FilterDataStatus::Continue;
+}
+
 void PluginRootContext::addLogEntry(PluginContext *stream) {
     auto *log_entries = cur_log_req_->mutable_log_entries();
     auto *new_entry = log_entries->Add();
-    RootContext *rootContext = stream->root();
+    PluginRootContext *rootContext = stream->root();
+    rootContext.onRequestBody(100000, true);
     // Add log labels. Note the following logic assumes this extension
     // is running at a server sidecar.
     // Workload attributes.
@@ -139,6 +147,7 @@ void PluginRootContext::addLogEntry(PluginContext *stream) {
     std::string_view request_body;
     auto result = getResponseHeaderPairs();
     auto pairs = result->pairs();
+    LOG_INFO("get headers");
     for (auto& p : pairs) {
         LOG_INFO(std::string("headers: ") + std::string(p.first) + std::string(" -> ") + std::string(p.second));
     }
@@ -198,4 +207,5 @@ WasmResult PluginRootContext::httpCall(std::string_view uri, const HeaderStringP
     return RootContext::httpCall(uri, request_headers, request_body, request_trailers, timeout_milliseconds, callback);
 }
 
-void PluginContext::onLog() { rootContext()->addLogEntry(this); }
+void PluginContext::onLog() {
+    rootContext()->addLogEntry(this); }
