@@ -125,7 +125,7 @@ void PluginRootContext::addLogEntry(PluginContext *stream) {
              new_entry->mutable_destination_namespace());
     // Request attributes.
     int64_t response_code, timestamp, duration;
-    std::string_view request_body
+    std::string_view request_body;
     getValue({"request", "body"}, &request_body);
     LOG_WARN(
             absl::StrCat("parse request body plugin configuration JSON string ", request_body));
