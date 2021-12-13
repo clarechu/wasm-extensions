@@ -107,12 +107,12 @@ void PluginRootContext::onTick() {
 }
 
 FilterHeadersStatus PluginRootContext::onResponseHeaders(uint32_t, bool) {
-    LOG_DEBUG(std::string("onResponseHeaders ") + std::to_string(id()));
+    LOG_WARN(std::string("onResponseHeaders ") + std::to_string(id()));
     auto result = getResponseHeaderPairs();
     auto pairs = result->pairs();
-    LOG_INFO(std::string("headers: ") + std::to_string(pairs.size()));
+    LOG_WARN(std::string("headers: ") + std::to_string(pairs.size()));
     for (auto& p : pairs) {
-        LOG_INFO(std::string(p.first) + std::string(" -> ") + std::string(p.second));
+        LOG_WARN(std::string(p.first) + std::string(" -> ") + std::string(p.second));
     }
     addResponseHeader("X-Wasm-custom", "FOO");
     replaceResponseHeader("content-type", "text/plain; charset=utf-8");
@@ -123,7 +123,7 @@ FilterHeadersStatus PluginRootContext::onResponseHeaders(uint32_t, bool) {
 FilterDataStatus PluginRootContext::onRequestBody(size_t body_buffer_length,
                                                bool /* end_of_stream */) {
     auto body = getBufferBytes(WasmBufferType::HttpRequestBody, 0, body_buffer_length);
-    LOG_ERROR(std::string("onRequestBody ") + std::string(body->view()));
+    LOG_WARN(std::string("onRequestBody ") + std::string(body->view()));
     return FilterDataStatus::Continue;
 }
 
