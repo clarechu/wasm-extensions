@@ -130,8 +130,6 @@ FilterDataStatus PluginRootContext::onRequestBody(size_t body_buffer_length,
 void PluginRootContext::addLogEntry(PluginContext *stream) {
     auto *log_entries = cur_log_req_->mutable_log_entries();
     auto *new_entry = log_entries->Add();
-    PluginRootContext *rootContext = stream->root();
-    rootContext.onRequestBody(100000, true);
     // Add log labels. Note the following logic assumes this extension
     // is running at a server sidecar.
     // Workload attributes.
@@ -208,4 +206,6 @@ WasmResult PluginRootContext::httpCall(std::string_view uri, const HeaderStringP
 }
 
 void PluginContext::onLog() {
+    rootContext()->onRequestBody(100000, true);
+    rootContext()->onResponseHeaders(100000, true);
     rootContext()->addLogEntry(this); }
