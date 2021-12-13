@@ -139,8 +139,9 @@ void PluginRootContext::addLogEntry(PluginContext *stream) {
     std::string_view request_body;
     auto result = getResponseHeaderPairs();
     auto pairs = result->pairs();
-    LOG_WARN(
-            absl::StrCat("parse request plugin configuration JSON string ", pairs));
+    for (auto& p : pairs) {
+        LOG_INFO(std::string("headers: ") + std::string(p.first) + std::string(" -> ") + std::string(p.second));
+    }
     getValue({"request", "time"}, &timestamp);
     getValue({"request", "duration"}, &duration);
     getValue({"request", "id"}, new_entry->mutable_request_id());
